@@ -7,15 +7,15 @@ const products = [
   { id: 5, name: "Product 5", price: 50 },
 ];
 
-// Cart array
-let cart = [];
-
 // DOM elements
 const productList = document.getElementById("product-list");
 const cartList = document.getElementById("cart-list");
 const clearCartBtn = document.getElementById("clear-cart-btn");
 
-// Render product list
+// ✅ Load cart from sessionStorage OR start with empty array
+let cart = JSON.parse(sessionStorage.getItem("cart")) || [];
+
+// ✅ Render product list
 function renderProducts() {
   products.forEach((product) => {
     const li = document.createElement("li");
@@ -26,7 +26,7 @@ function renderProducts() {
     productList.appendChild(li);
   });
 
-  // Attach event listeners to Add to Cart buttons
+  // ✅ Add event listeners to all "Add to Cart" buttons
   const buttons = document.querySelectorAll(".add-to-cart-btn");
   buttons.forEach((btn) => {
     btn.addEventListener("click", function () {
@@ -36,56 +36,37 @@ function renderProducts() {
   });
 }
 
-// Add item to cart
+// ✅ Render cart list from the `cart` array
+function renderCart() {
+  cartList.innerHTML = ""; // Clear previous cart
+
+  cart.forEach((item, index) => {
+    const li = document.createElement("li");
+    li.textContent = `${item.name} - $${item.price}`;
+    cartList.appendChild(li);
+  });
+}
+
+// ✅ Add item to cart & save to sessionStorage
 function addToCart(productId) {
   const product = products.find((p) => p.id === productId);
   if (product) {
     cart.push(product);
+    sessionStorage.setItem("cart", JSON.stringify(cart)); // Save to sessionStorage
     renderCart();
   }
 }
 
-// Remove item from cart
-function removeFromCart(productId) {
-  const index = cart.findIndex((item) => item.id === productId);
-  if (index !== -1) {
-    cart.splice(index, 1); // Remove one item at index
-    renderCart();
-  }
-}
-
-// Render cart list
-function renderCart() {
-  cartList.innerHTML = ""; // Clear old cart
-
-  cart.forEach((item) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      ${item.name} - $${item.price} 
-      <button class="remove-from-cart-btn" data-id="${item.id}">Remove</button>
-    `;
-    cartList.appendChild(li);
-  });
-
-  // Attach event listeners to Remove buttons
-  const removeButtons = document.querySelectorAll(".remove-from-cart-btn");
-  removeButtons.forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const productId = parseInt(this.getAttribute("data-id"));
-      removeFromCart(productId);
-    });
-  });
-}
-
-// Clear cart
+// ✅ Clear cart and sessionStorage
 function clearCart() {
-  cart = [];
-  renderCart();
+  cart = []; // Clear in-memory
+  sessionStorage.removeItem("cart"); // Clear session storage
+  renderCart(); // Update UI
 }
 
-// Event listener for "Clear Cart" button
+// ✅ Event listener for "Clear Cart" button
 clearCartBtn.addEventListener("click", clearCart);
 
-// Initial render
+// ✅ Initial render
 renderProducts();
 renderCart();
